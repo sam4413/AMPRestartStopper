@@ -1,22 +1,11 @@
 ﻿using HarmonyLib;
 using NLog;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Net.Http;
-using System.Reflection;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Controls;
 using Torch;
 using Torch.API;
 using Torch.API.Managers;
-using Torch.API.Plugins;
 using Torch.API.Session;
-using Torch.Commands;
 using Torch.Mod;
 using Torch.Mod.Messages;
 using Torch.Server;
@@ -26,7 +15,6 @@ namespace AMPRestartStopper
 {
     public class AMPRestartStopper : TorchPluginBase
     {
-
         public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private readonly Harmony _harmony = new Harmony("AMPRestartStopper.AMPRestartStopper");
@@ -46,7 +34,6 @@ namespace AMPRestartStopper
             Log.Warn("Running AMPRestartStopper");
 
         }
-
         private void SessionChanged(ITorchSession session, TorchSessionState state)
         {
 
@@ -62,7 +49,6 @@ namespace AMPRestartStopper
                 break;
             }
         }
-        //Yeet restart command
         [HarmonyPatch]
         [HarmonyPatch(typeof(TorchServer), "Restart")]
         public class RestartPatch
