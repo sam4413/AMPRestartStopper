@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <PluginManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Name>AMPRestartStopper</Name>
+  <Name>AMPUtilities</Name>
   <Guid>f702e15e-1f0a-4546-b636-9d3feea41c4e</Guid>
   <Repository>None</Repository>
-  <Version>v1.0.0</Version>
+  <Version>v1.1</Version>
 </PluginManifest>

@@ -189,33 +189,8 @@ namespace AmpUtilities
             Log.Debug($"response length {message.Length}");
             if (message.Length > 0)
             {
-                const int chunkSize = 2000 - 1; // Remove 1 just ensure everything is ok
-
-                if (message.Length <= chunkSize)
-                    Log.Info(message);
-                else
-                {
-                    var index = 0;
-                    do
-                    {
-                        Log.Debug($"while iteration index {index}");
-
-                        /* if remaining part of message is small enough then just output it. */
-                        if (index + chunkSize >= message.Length)
-                        {
-                            Log.Info(message.Substring(index));
-                            break;
-                        }
-
-                        var chunk = message.Substring(index, chunkSize);
-                        var newLineIndex = chunk.LastIndexOf("\n");
-                        Log.Debug($"while iteration newLineIndex {newLineIndex}");
-
-                        Log.Info(chunk.Substring(0, newLineIndex));
-                        index += newLineIndex + 1;
-
-                    } while (index < message.Length);
-                }
+                Log.Info(message);
+              
             }
         }
     }

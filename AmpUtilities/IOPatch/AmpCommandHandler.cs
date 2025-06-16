@@ -9,7 +9,7 @@ using Torch.API;
 using Torch.API.Plugins;
 using Torch.Commands;
 using VRageMath;
-using static Sandbox.Engine.Networking.MyWorkshop;
+
 namespace AMPRestartStopper.AmpUtilities.IOPatch
 {
     public class AmpCommandHandler : CommandContext
@@ -32,7 +32,7 @@ namespace AMPRestartStopper.AmpUtilities.IOPatch
                 _cancelToken.Cancel();
             _cancelToken = new CancellationTokenSource();
 
-            var a = Task.Delay(500, _cancelToken.Token)
+            var a = Task.Delay(1000, _cancelToken.Token)
                 .ContinueWith((t) =>
                 {
                     string chunk;
