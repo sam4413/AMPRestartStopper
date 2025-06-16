@@ -177,28 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AmpUtilities\Patches\RestartPatch.cs" />
-    <Compile Include="AmpUtilities\Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AmpUtilities\Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="AmpUtilities\Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <Compile Include="AmpUtilities\AmpUtilitiesRunner.cs" />
-    <EmbeddedResource Include="AmpUtilities\Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="AmpUtilities\Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>

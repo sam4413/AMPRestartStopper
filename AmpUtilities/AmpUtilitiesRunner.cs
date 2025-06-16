@@ -1,4 +1,5 @@
-﻿using NLog;
+﻿using HarmonyLib;
+using NLog;
 using Sandbox.Engine.Utils;
 using Sandbox.ModAPI;
 using System;
@@ -21,10 +22,10 @@ namespace AmpUtilities
     public class AmpUtilitiesRunner : TorchPluginBase
     {
         public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        private Thread _inputThread;
         private bool _running = true;
         private static CommandManager _commandManager;
         private static IChatManagerServer _chatManagerServer;
+        private readonly Harmony _harmony = new Harmony("AmpUtilities.AmpUtilities");
 
         public override void Init(ITorchBase torch)
         {
@@ -32,6 +33,13 @@ namespace AmpUtilities
             var sessionManager = Torch.Managers.GetManager<TorchSessionManager>();
             if (sessionManager != null)
                 sessionManager.SessionStateChanged += SessionChanged;
+            else
+                Log.Warn("No session manager loaded!");
+
+            Log.Info("Patching methods..");
+            _harmony.PatchAll();
+            Log.Warn("Methods patched!");
+
         }
 
         private void SessionChanged(ITorchSession session, TorchSessionState state)
@@ -44,11 +52,7 @@ namespace AmpUtilities
                 Log.Info("Session Loaded!");
                 _commandManager = Torch.CurrentSession.Managers.GetManager<CommandManager>();
                 _chatManagerServer = Torch.CurrentSession.Managers.GetManager<IChatManagerServer>();
-                _inputThread = new Thread(ReadInputLoop)
-                {
-                    IsBackground = true
-                };
-                _inputThread.Start();
+                MyAPIGateway.Parallel.StartBackground(ReadInputLoop);
                 break;
 
                 case TorchSessionState.Unloading:
@@ -56,11 +60,6 @@ namespace AmpUtilities
                 break;
             }
         }
-
-        public UserControl GetControl() => new PropertyGrid
-        {
-
-        };
 
         private void ReadInputLoop()
         {
@@ -72,7 +71,7 @@ namespace AmpUtilities
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
 
-                    Log.Info($"[StdioPlugin] Received Input: {line}");
+                    Log.Info($"Received Input: {line}");
                     Thread CurrentThread = Thread.CurrentThread;
                     if (CurrentThread != MyUtils.MainThread)
                     {
@@ -98,7 +97,7 @@ namespace AmpUtilities
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"[StdioPlugin] STDIN error: {ex.Message}");
+                    Log.Error($"STDIN error: {ex.Message}");
                 }
             }
         }
