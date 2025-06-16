@@ -22,6 +22,7 @@ namespace AmpUtilities
     public class AmpUtilitiesRunner : TorchPluginBase
     {
         public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        private Thread _inputThread;
         private bool _running = true;
         private static CommandManager _commandManager;
         private static IChatManagerServer _chatManagerServer;
@@ -39,24 +40,34 @@ namespace AmpUtilities
             Log.Info("Patching methods..");
             _harmony.PatchAll();
             Log.Warn("Methods patched!");
-
         }
 
         private void SessionChanged(ITorchSession session, TorchSessionState state)
         {
-
             switch (state)
             {
-
                 case TorchSessionState.Loaded:
                 Log.Info("Session Loaded!");
                 _commandManager = Torch.CurrentSession.Managers.GetManager<CommandManager>();
                 _chatManagerServer = Torch.CurrentSession.Managers.GetManager<IChatManagerServer>();
-                MyAPIGateway.Parallel.StartBackground(ReadInputLoop);
+                if (_inputThread == null || !_inputThread.IsAlive)
+                {
+                    _running = true;
+                    _inputThread = new Thread(ReadInputLoop) { IsBackground = true };
+                    _inputThread.Start();
+                }
                 break;
 
                 case TorchSessionState.Unloading:
                 Log.Info("Session Unloading!");
+                _running = false;
+                if (_inputThread != null && _inputThread.IsAlive)
+                {
+                    try
+                    { _inputThread.Interrupt(); }
+                    catch { }
+                    _inputThread = null;
+                }
                 break;
             }
         }
@@ -70,7 +81,6 @@ namespace AmpUtilities
                     string line = System.Console.ReadLine();
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
-
                     Log.Info($"Received Input: {line}");
                     Thread CurrentThread = Thread.CurrentThread;
                     if (CurrentThread != MyUtils.MainThread)
@@ -107,7 +117,7 @@ namespace AmpUtilities
             try
             {
                 if (_chatManagerServer != null)
-                    _chatManagerServer.SendMessageAsOther(author, message, VRageMath.Color.Blue);
+                    _chatManagerServer.SendMessageAsOther(author, message, VRageMath.Color.PaleVioletRed);
                 else
                     Log.Info($"Can't find Chat Manager");
             }
@@ -155,6 +165,5 @@ namespace AmpUtilities
                 Log.Info($"Error running command: {ex}");
             }
         }
-
     }
 }
