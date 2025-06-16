@@ -1,4 +1,4 @@
-﻿using AMPRestartStopper.AmpUtilities.IOPatch;
+﻿using AmpUtilities.IOPatch;
 using HarmonyLib;
 using NLog;
 using Sandbox.Engine.Utils;
@@ -43,9 +43,9 @@ namespace AmpUtilities
             else
                 Log.Warn("No session manager loaded!");
 
-            Log.Info("Patching methods..");
+            /*Log.Info("Patching methods..");
             _harmony.PatchAll();
-            Log.Warn("Methods patched!");
+            Log.Warn("Methods patched!");*/
         }
 
         private void SessionChanged(ITorchSession session, TorchSessionState state)

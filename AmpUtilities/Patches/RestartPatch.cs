@@ -13,7 +13,7 @@ using Torch.Server;
 
 namespace AmpUtilities.Patches
 {
-    internal class RestartPatch
+    /*internal class RestartPatch
     {
         [HarmonyPatch]
         [HarmonyPatch(typeof(TorchServer), "Restart")]
@@ -37,5 +37,5 @@ namespace AmpUtilities.Patches
         {
             Process.GetCurrentProcess().Kill();
         }
-    }
+    }*/
 }
