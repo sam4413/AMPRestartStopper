@@ -1,11 +1,15 @@
-﻿using HarmonyLib;
+﻿using AMPRestartStopper.AmpUtilities.IOPatch;
+using HarmonyLib;
 using NLog;
 using Sandbox.Engine.Utils;
+using Sandbox.Game.Multiplayer;
 using Sandbox.ModAPI;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using Torch;
 using Torch.API;
@@ -15,11 +19,13 @@ using Torch.API.Session;
 using Torch.Commands;
 using Torch.Session;
 using Torch.Views;
+using VRage.Plugins;
 using VRage.Utils;
+using static Sandbox.Game.Screens.Helpers.MyToolbar;
 
 namespace AmpUtilities
 {
-    public class AmpUtilitiesRunner : TorchPluginBase
+    public class AmpUtilities : TorchPluginBase
     {
         public static readonly Logger Log = LogManager.GetCurrentClassLogger();
         private Thread _inputThread;
@@ -102,7 +108,7 @@ namespace AmpUtilities
                 }
                 catch (Exception ex)
                 {
-                    Log.Error($"STDIN error: {ex.Message}");
+                    Log.Error($"STDIO error: {ex.Message}");
                 }
             }
         }
@@ -122,43 +128,94 @@ namespace AmpUtilities
             }
         }
 
+
+
         public void RunCommand(string commandText)
         {
             try
             {
-
-                if (_commandManager == null)
+                if (Torch.CurrentSession?.State == TorchSessionState.Loaded)
                 {
-                    Log.Info($"Command is null");
-                    return;
-                }
-                if (_commandManager.Commands == null)
-                {
-                    Log.Info($"Command tree is null");
-                    return;
-                }
-                string argsText;
+                    if (_commandManager == null)
+                    {
+                        Log.Info($"Command is null");
+                        return;
+                    }
+                    if (_commandManager.Commands == null)
+                    {
+                        Log.Info($"Command tree is null");
+                        return;
+                    }
 
-                if (commandText.StartsWith("!"))
-                    commandText = commandText.Substring(1);
+                    string argsText;
 
-                var command = _commandManager.Commands.GetCommand(commandText, out argsText);
+                    if (commandText.StartsWith("!"))
+                        commandText = commandText.Substring(1);
 
-                if (command != null)
-                {
-                    var argsList = argsText.Split(' ').ToList();
 
-                    var context = new CommandContext(Torch, this, 0, argsText, argsList);
-                    command.TryInvoke(context);
+                    var manager = Torch.CurrentSession.Managers.GetManager<CommandManager>();
+
+                    var command = manager.Commands.GetCommand(commandText, out argsText);
+
+                    if (command != null)
+                    {
+                        var argsList = argsText.Split(' ').ToList();
+                        var splitArgs = Regex.Matches(argsText, "(\"[^\"]+\"|\\S+)").Cast<Match>().Select(x => x.ToString().Replace("\"", "")).ToList();
+                        Log.Info($"Invoking {commandText} for server.");
+
+                        var context = new AmpCommandHandler(Torch, command.Plugin, Sync.MyId, argsText, splitArgs);
+                        context.OnResponse += OnCommandResponse;
+                        var invokeSuccess = false;
+                        Torch.InvokeBlocking(() => invokeSuccess = command.TryInvoke(context));
+                        Log.Debug($"invokeSuccess {invokeSuccess}");
+                        if (!invokeSuccess)
+                            Log.Error($"Error executing command: {commandText}");
+
+                        Log.Info($"Server ran command '{commandText}'");
+                    }
                 }
                 else
                 {
-                    Log.Info($"Command later is null");
+                    Log.Info($"Server is not running.");
                 }
             }
             catch (Exception ex)
             {
-                Log.Info($"Error running command: {ex}");
+                Log.Error($"Error running command: {ex}");
+            }
+        }
+        private void OnCommandResponse(string message, string sender = "Server", string font = "White")
+        {
+            Log.Debug($"response length {message.Length}");
+            if (message.Length > 0)
+            {
+                const int chunkSize = 2000 - 1; // Remove 1 just ensure everything is ok
+
+                if (message.Length <= chunkSize)
+                    Log.Info(message);
+                else
+                {
+                    var index = 0;
+                    do
+                    {
+                        Log.Debug($"while iteration index {index}");
+
+                        /* if remaining part of message is small enough then just output it. */
+                        if (index + chunkSize >= message.Length)
+                        {
+                            Log.Info(message.Substring(index));
+                            break;
+                        }
+
+                        var chunk = message.Substring(index, chunkSize);
+                        var newLineIndex = chunk.LastIndexOf("\n");
+                        Log.Debug($"while iteration newLineIndex {newLineIndex}");
+
+                        Log.Info(chunk.Substring(0, newLineIndex));
+                        index += newLineIndex + 1;
+
+                    } while (index < message.Length);
+                }
             }
         }
     }
