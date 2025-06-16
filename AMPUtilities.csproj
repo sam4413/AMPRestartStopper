@@ -152,6 +152,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AmpUtilities\IOPatch\ConsoleCommandContext.cs" />
     <Compile Include="AmpUtilities\Patches\RestartPatch.cs" />
     <Compile Include="AmpUtilities\AmpUtilitiesRunner.cs" />
     <None Include="app.config" />

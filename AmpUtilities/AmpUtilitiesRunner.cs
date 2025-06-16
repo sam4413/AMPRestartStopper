@@ -50,12 +50,7 @@ namespace AmpUtilities
                 Log.Info("Session Loaded!");
                 _commandManager = Torch.CurrentSession.Managers.GetManager<CommandManager>();
                 _chatManagerServer = Torch.CurrentSession.Managers.GetManager<IChatManagerServer>();
-                if (_inputThread == null || !_inputThread.IsAlive)
-                {
-                    _running = true;
-                    _inputThread = new Thread(ReadInputLoop) { IsBackground = true };
-                    _inputThread.Start();
-                }
+                MyAPIGateway.Parallel.StartBackground(ReadInputLoop);
                 break;
 
                 case TorchSessionState.Unloading:
@@ -152,6 +147,7 @@ namespace AmpUtilities
                 if (command != null)
                 {
                     var argsList = argsText.Split(' ').ToList();
+
                     var context = new CommandContext(Torch, this, 0, argsText, argsList);
                     command.TryInvoke(context);
                 }
