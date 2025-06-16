@@ -10,7 +10,7 @@ using Torch.API.Plugins;
 using Torch.Commands;
 using VRageMath;
 
-namespace AMPRestartStopper.AmpUtilities.IOPatch
+namespace AmpUtilities.IOPatch
 {
     public class AmpCommandHandler : CommandContext
     {
