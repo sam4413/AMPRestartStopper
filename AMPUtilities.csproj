@@ -38,9 +38,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>F:\torch-server(8)\Plugins\AdvancedBans\0Harmony.dll</HintPath>
-    </Reference>
     <Reference Include="netstandard" />
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -153,7 +150,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AmpUtilities\IOPatch\AmpCommandHandler.cs" />
-    <Compile Include="AmpUtilities\Patches\RestartPatch.cs" />
     <Compile Include="AmpUtilities\AmpUtilities.cs" />
     <None Include="app.config" />
   </ItemGroup>
